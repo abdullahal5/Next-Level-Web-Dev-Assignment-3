@@ -43,7 +43,7 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (!checkPassword) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, "Please enter valid password");
     }
-    const validateUser = yield user_model_1.UserModel.findOne({ email: email });
+    const validateUser = yield user_model_1.UserModel.findOne({ email: email }).select("-password");
     return { validateUser, token: accessToken };
 });
 exports.UserService = {

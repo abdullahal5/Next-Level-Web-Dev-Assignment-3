@@ -48,7 +48,9 @@ const loginUser = async (payload: TLoginInfo) => {
     throw new AppError(httpStatus.FORBIDDEN, "Please enter valid password");
   }
 
-  const validateUser = await UserModel.findOne({ email: email });
+  const validateUser = await UserModel.findOne({ email: email }).select(
+    "-password",
+  );
 
   return { validateUser, token: accessToken };
 };
