@@ -14,7 +14,8 @@ const createUserValidationSchema = zod_1.z.object({
         password: zod_1.z.string(),
         phone: zod_1.z.string().optional(),
         address: zod_1.z.string().optional(),
-        role: zod_1.z.enum([...user_constant_1.Roles]),
+        profileImage: zod_1.z.string().optional(),
+        role: zod_1.z.enum([...user_constant_1.Roles]).optional(),
     }),
 });
 const loginUserValidationSchema = zod_1.z.object({

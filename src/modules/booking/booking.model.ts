@@ -19,11 +19,8 @@ const bookingSchema = new Schema<TBooking>(
       required: true,
     },
     date: {
-      type: String,
+      type: [String],
       required: true,
-      set: function (date: string) {
-        return new Date(date).toISOString().substring(0, 10);
-      },
     },
     totalAmount: {
       type: Number,

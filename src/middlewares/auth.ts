@@ -17,10 +17,13 @@ const auth = (...requiredRoles: TUserRole[]) => {
       );
     }
 
-    const decoded = jwt.verify(
-      token,
-      config.Access_Token as string,
-    ) as JwtPayload;
+    let decoded;
+
+    try {
+      decoded = jwt.verify(token, config.Access_Token as string) as JwtPayload;
+    } catch (error) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "Jwt expired");
+    }
 
     const { role, userId } = decoded;
 

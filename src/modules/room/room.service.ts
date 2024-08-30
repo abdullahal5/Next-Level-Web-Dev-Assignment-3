@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
-import { TRoom } from "./room.interface";
+import { RoomFilterPayload, TRoom } from "./room.interface";
 import { RoomModel } from "./room.model";
 
 const createRoomIntoDB = async (payload: TRoom) => {
@@ -17,9 +18,43 @@ const createRoomIntoDB = async (payload: TRoom) => {
   return result;
 };
 
-const getAllRoomFromDB = async () => {
-  const result = await RoomModel.find();
-  return result;
+const getAllRoomFromDB = async (payload?: RoomFilterPayload) => {
+  const filter: { [key: string]: any } = {};
+  const sort: { [key: string]: 1 | -1 } = {};
+
+  if (payload) {
+    const { price, capacity, search, sort: sortOrder } = payload;
+
+    if (search) {
+      filter.name = { $regex: search, $options: "i" };
+    }
+
+    if (price !== undefined) {
+      filter.pricePerSlot = { $lte: Number(price) };
+    }
+
+    if (capacity !== undefined) {
+      filter.capacity = { $lte: Number(capacity) };
+    }
+
+    if (sortOrder === "ascending") {
+      sort.pricePerSlot = 1;
+    } else if (sortOrder === "descending") {
+      sort.pricePerSlot = -1;
+    }
+  }
+
+  if (Object.keys(sort).length === 0) {
+    sort.createdAt = -1;
+  }
+
+  try {
+    const result = await RoomModel.find(filter).sort(sort);
+    return result;
+  } catch (error) {
+    console.error("Error fetching rooms:", error);
+    throw error;
+  }
 };
 
 const getSingleRoomFromDB = async (id: string) => {

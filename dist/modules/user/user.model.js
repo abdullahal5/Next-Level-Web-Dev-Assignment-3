@@ -29,6 +29,10 @@ const userSchema = new mongoose_1.Schema({
         type: String,
         required: true,
     },
+    profileImage: {
+        type: String,
+        default: "https://i.ibb.co/5nFKFkn/images-removebg-preview.png",
+    },
     phone: {
         type: String,
         required: true,
@@ -41,6 +45,7 @@ const userSchema = new mongoose_1.Schema({
     role: {
         type: String,
         enum: ["admin", "user"],
+        default: "admin",
     },
 }, {
     timestamps: true,

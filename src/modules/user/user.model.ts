@@ -17,6 +17,10 @@ const userSchema = new Schema<TUser>(
       type: String,
       required: true,
     },
+    profileImage: {
+      type: String,
+      default: "https://i.ibb.co/5nFKFkn/images-removebg-preview.png",
+    },
     phone: {
       type: String,
       required: true,
@@ -29,6 +33,7 @@ const userSchema = new Schema<TUser>(
     role: {
       type: String,
       enum: ["admin", "user"],
+      default: "admin",
     },
   },
   {

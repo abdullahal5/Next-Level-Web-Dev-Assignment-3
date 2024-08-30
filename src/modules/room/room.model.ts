@@ -7,10 +7,18 @@ const roomSchema = new Schema<TRoom>(
       type: String,
       required: true,
     },
+    images: {
+      type: [String],
+      required: true
+    },
     roomNo: {
       type: Number,
       required: true,
       unique: true,
+    },
+    capacity: {
+      type: Number,
+      required: true,
     },
     floorNo: {
       type: Number,

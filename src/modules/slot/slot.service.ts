@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
 import { TSlot } from "./slot.interface";
@@ -45,7 +46,7 @@ const getAllSlotFromDB = async (query?: { date?: string; roomId?: string }) => {
     }
 
     if (result?.length <= 0) {
-      throw new AppError(httpStatus.NOT_FOUND, "No Data Found");
+      throw new AppError(httpStatus.OK, "No Data Found");
     }
 
     return result;
@@ -55,7 +56,52 @@ const getAllSlotFromDB = async (query?: { date?: string; roomId?: string }) => {
   }
 };
 
+const getSingleSlotFromDB = async (id: string) => {
+  const isRoomExists = await SlotModel.findById(id);
+
+  if (!isRoomExists) {
+    throw new AppError(httpStatus.NOT_FOUND, "No Data Found");
+  }
+
+  const result = SlotModel.findById(id);
+  return result;
+};
+
+const updateSlotIntoDB = async (id: string, payload: Partial<TSlot>) => {
+  const isSlotExists = await SlotModel.findById(id);
+
+  if (!isSlotExists) {
+    throw new AppError(httpStatus.NOT_FOUND, "No Data Found");
+  }
+
+  const result = await SlotModel.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  });
+
+  return result;
+};
+
+const deleteSlotFromDB = async (id: string) => {
+  const isRoomExists = await SlotModel.findById(id);
+
+  if (!isRoomExists) {
+    throw new AppError(httpStatus.NOT_FOUND, "No Data Found");
+  }
+
+  const deleteSlot = await SlotModel.findByIdAndDelete(id, { new: true });
+
+  if (!deleteSlot) {
+    throw new AppError(httpStatus.NOT_FOUND, "No Data Found");
+  }
+
+  return deleteSlot;
+};
+
 export const SlotService = {
+  updateSlotIntoDB,
   createSlotIntoDB,
   getAllSlotFromDB,
+  getSingleSlotFromDB,
+  deleteSlotFromDB,
 };

@@ -25,7 +25,13 @@ const auth = (...requiredRoles) => {
         if (!token) {
             throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You have no access to this route!");
         }
-        const decoded = jsonwebtoken_1.default.verify(token, config_1.default.Access_Token);
+        let decoded;
+        try {
+            decoded = jsonwebtoken_1.default.verify(token, config_1.default.Access_Token);
+        }
+        catch (error) {
+            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "Jwt expired");
+        }
         const { role, userId } = decoded;
         const isUserExist = yield user_model_1.UserModel.findById(userId);
         if (!isUserExist) {

@@ -3,7 +3,7 @@ import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
 import { TLoginInfo, TUser } from "./user.interface";
 import { UserModel } from "./user.model";
-import { createToken } from "./user.utility";
+import { createToken, verifyToken } from "./user.utility";
 import config from "../../config";
 
 const createUserIntoDB = async (payload: TUser) => {
@@ -32,8 +32,14 @@ const loginUser = async (payload: TLoginInfo) => {
   }
 
   const jwtPayload = {
-    userId: user._id,
-    role: user.role,
+    userId: user?._id,
+    name: user?.name,
+    email: user?.email,
+    profileImage: user?.profileImage,
+    role: user?.role,
+    address: user?.address,
+    phone: user?.phone,
+    _id: user?._id,
   };
 
   const accessToken = createToken(
@@ -42,20 +48,57 @@ const loginUser = async (payload: TLoginInfo) => {
     config.Jwt_access_expires_in as string,
   );
 
+  const refreshToken = createToken(
+    jwtPayload,
+    config.Refresh_Token as string,
+    config.Jwt_refresh_expires_in as string,
+  );
+
   const checkPassword = await bcrypt.compare(password, user.password);
 
   if (!checkPassword) {
     throw new AppError(httpStatus.FORBIDDEN, "Please enter valid password");
   }
 
-  const validateUser = await UserModel.findOne({ email: email }).select(
-    "-password",
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
+const refreshToken = async (refreshToken: string) => {
+  const decoded = verifyToken(refreshToken, config.Refresh_Token as string);
+
+  const isUserExist = await UserModel.findOne({ email: decoded?.email });
+
+  if (!isUserExist) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found. Please register");
+  }
+
+  const jwtPayload = {
+    userId: isUserExist?._id,
+    name: isUserExist?.name,
+    email: isUserExist?.email,
+    profileImage: isUserExist?.profileImage,
+    role: isUserExist?.role,
+    address: isUserExist?.address,
+    phone: isUserExist?.phone,
+    _id: isUserExist?._id
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.Access_Token as string,
+    config.Jwt_access_expires_in as string,
   );
 
-  return { validateUser, token: accessToken };
+  return {
+    accessToken,
+  };
 };
 
 export const UserService = {
   createUserIntoDB,
   loginUser,
+  refreshToken,
 };

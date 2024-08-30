@@ -17,6 +17,7 @@ const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const user_service_1 = require("./user.service");
+const config_1 = __importDefault(require("../../config"));
 const registerUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const body = req.body;
     const result = yield user_service_1.UserService.createUserIntoDB(body);
@@ -28,17 +29,34 @@ const registerUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     });
 }));
 const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const body = req.body;
-    const result = yield user_service_1.UserService.loginUser(body);
+    const result = yield user_service_1.UserService.loginUser(req.body);
+    const { refreshToken, accessToken } = result;
+    res.cookie("refreshToken", refreshToken, {
+        secure: config_1.default.NODE_ENV === "production" ? true : false,
+        httpOnly: true,
+        sameSite: config_1.default.NODE_ENV === "production" ? "none" : "lax",
+    });
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        token: result.token,
-        message: "User logged in successfully",
-        data: result.validateUser,
+        message: "User logged in succesfully!",
+        data: {
+            accessToken,
+        },
+    });
+}));
+const refreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { refreshToken } = req.cookies;
+    const result = yield user_service_1.UserService.refreshToken(refreshToken);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Access token is retrieved succesfully!",
+        data: result,
     });
 }));
 exports.UserController = {
     registerUser,
     loginUser,
+    refreshToken,
 };

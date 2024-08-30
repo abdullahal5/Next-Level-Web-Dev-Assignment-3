@@ -117,7 +117,6 @@ const updateBookings = async (id: string, pyaload: Partial<TBooking>) => {
 
 const deleteBookings = async (id: string) => {
   const checkIsAlreadyDeleted = await BookingModel.findById(id);
-  console.log(checkIsAlreadyDeleted);
 
   if (!checkIsAlreadyDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, "No Data Found");

@@ -35,18 +35,49 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not found please Register!!!");
     }
     const jwtPayload = {
-        userId: user._id,
-        role: user.role,
+        userId: user === null || user === void 0 ? void 0 : user._id,
+        name: user === null || user === void 0 ? void 0 : user.name,
+        email: user === null || user === void 0 ? void 0 : user.email,
+        profileImage: user === null || user === void 0 ? void 0 : user.profileImage,
+        role: user === null || user === void 0 ? void 0 : user.role,
+        address: user === null || user === void 0 ? void 0 : user.address,
+        phone: user === null || user === void 0 ? void 0 : user.phone,
+        _id: user === null || user === void 0 ? void 0 : user._id,
     };
     const accessToken = (0, user_utility_1.createToken)(jwtPayload, config_1.default.Access_Token, config_1.default.Jwt_access_expires_in);
+    const refreshToken = (0, user_utility_1.createToken)(jwtPayload, config_1.default.Refresh_Token, config_1.default.Jwt_refresh_expires_in);
     const checkPassword = yield bcrypt_1.default.compare(password, user.password);
     if (!checkPassword) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, "Please enter valid password");
     }
-    const validateUser = yield user_model_1.UserModel.findOne({ email: email }).select("-password");
-    return { validateUser, token: accessToken };
+    return {
+        accessToken,
+        refreshToken,
+    };
+});
+const refreshToken = (refreshToken) => __awaiter(void 0, void 0, void 0, function* () {
+    const decoded = (0, user_utility_1.verifyToken)(refreshToken, config_1.default.Refresh_Token);
+    const isUserExist = yield user_model_1.UserModel.findOne({ email: decoded === null || decoded === void 0 ? void 0 : decoded.email });
+    if (!isUserExist) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not found. Please register");
+    }
+    const jwtPayload = {
+        userId: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist._id,
+        name: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.name,
+        email: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.email,
+        profileImage: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.profileImage,
+        role: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.role,
+        address: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.address,
+        phone: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.phone,
+        _id: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist._id
+    };
+    const accessToken = (0, user_utility_1.createToken)(jwtPayload, config_1.default.Access_Token, config_1.default.Jwt_access_expires_in);
+    return {
+        accessToken,
+    };
 });
 exports.UserService = {
     createUserIntoDB,
     loginUser,
+    refreshToken,
 };

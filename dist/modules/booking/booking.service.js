@@ -99,7 +99,6 @@ const updateBookings = (id, pyaload) => __awaiter(void 0, void 0, void 0, functi
 });
 const deleteBookings = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const checkIsAlreadyDeleted = yield booking_model_1.BookingModel.findById(id);
-    console.log(checkIsAlreadyDeleted);
     if (!checkIsAlreadyDeleted) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "No Data Found");
     }

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SlotService = void 0;
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const slot_model_1 = require("./slot.model");
@@ -51,7 +52,7 @@ const getAllSlotFromDB = (query) => __awaiter(void 0, void 0, void 0, function* 
             result = yield slot_model_1.SlotModel.find({ room: { $in: roomId } });
         }
         if ((result === null || result === void 0 ? void 0 : result.length) <= 0) {
-            throw new AppError_1.default(http_status_1.default.NOT_FOUND, "No Data Found");
+            throw new AppError_1.default(http_status_1.default.OK, "No Data Found");
         }
         return result;
     }
@@ -60,7 +61,40 @@ const getAllSlotFromDB = (query) => __awaiter(void 0, void 0, void 0, function* 
         return result;
     }
 });
+const getSingleSlotFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const isRoomExists = yield slot_model_1.SlotModel.findById(id);
+    if (!isRoomExists) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "No Data Found");
+    }
+    const result = slot_model_1.SlotModel.findById(id);
+    return result;
+});
+const updateSlotIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const isSlotExists = yield slot_model_1.SlotModel.findById(id);
+    if (!isSlotExists) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "No Data Found");
+    }
+    const result = yield slot_model_1.SlotModel.findByIdAndUpdate(id, payload, {
+        new: true,
+        runValidators: true,
+    });
+    return result;
+});
+const deleteSlotFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const isRoomExists = yield slot_model_1.SlotModel.findById(id);
+    if (!isRoomExists) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "No Data Found");
+    }
+    const deleteSlot = yield slot_model_1.SlotModel.findByIdAndDelete(id, { new: true });
+    if (!deleteSlot) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "No Data Found");
+    }
+    return deleteSlot;
+});
 exports.SlotService = {
+    updateSlotIntoDB,
     createSlotIntoDB,
     getAllSlotFromDB,
+    getSingleSlotFromDB,
+    deleteSlotFromDB,
 };
