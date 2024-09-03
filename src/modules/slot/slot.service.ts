@@ -4,6 +4,7 @@ import AppError from "../../errors/AppError";
 import { TSlot } from "./slot.interface";
 import { SlotModel } from "./slot.model";
 import { addMinutes, getTimeInMinutes } from "./slot.utils";
+import mongoose from "mongoose";
 
 const createSlotIntoDB = async (payload: TSlot) => {
   const { room, date, startTime, endTime } = payload;
@@ -35,25 +36,31 @@ const createSlotIntoDB = async (payload: TSlot) => {
 };
 
 const getAllSlotFromDB = async (query?: { date?: string; roomId?: string }) => {
+  let result: any;
+
   if (query && Object.keys(query).length > 0) {
-    let result: any;
     const { date, roomId } = query;
+    const filter: any = {};
+
     if (date) {
-      result = await SlotModel.find({ date: { $in: date } });
+      filter.date = { $in: date };
     }
     if (roomId) {
-      result = await SlotModel.find({ room: { $in: roomId } });
+      filter.room = { $in: roomId };
     }
 
-    if (result?.length <= 0) {
+    filter.isBooked = false;
+
+    result = await SlotModel.find(filter).populate("room");
+
+    if (result.length <= 0) {
       throw new AppError(httpStatus.OK, "No Data Found");
     }
-
-    return result;
   } else {
-    const result = await SlotModel.find({ isBooked: false }).populate("room");
-    return result;
+    result = await SlotModel.find({ isBooked: false }).populate("room");
   }
+
+  return result;
 };
 
 const getSingleSlotFromDB = async (id: string) => {
@@ -98,10 +105,25 @@ const deleteSlotFromDB = async (id: string) => {
   return deleteSlot;
 };
 
+const getMultipleSlotsFromDB = async (ids: string | string[]) => {
+  const idArray = Array.isArray(ids) ? ids : ids.split(",");
+
+  const objectIds = idArray.map((id) => new mongoose.Types.ObjectId(id.trim()));
+
+  const slots = await SlotModel.find({ _id: { $in: objectIds } });
+
+  if (slots.length === 0) {
+    throw new AppError(httpStatus.NOT_FOUND, "No Data Found");
+  }
+
+  return slots;
+};
+
 export const SlotService = {
   updateSlotIntoDB,
   createSlotIntoDB,
   getAllSlotFromDB,
   getSingleSlotFromDB,
   deleteSlotFromDB,
+  getMultipleSlotsFromDB,
 };

@@ -20,6 +20,9 @@ router.get(
   auth(User_Role.user),
   BookingController.getMyBooking,
 );
+
+router.get("/bookings/:id", BookingController.singleBooking);
+
 router.put(
   "/bookings/:id",
   auth(User_Role.admin),

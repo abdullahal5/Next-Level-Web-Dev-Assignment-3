@@ -5,6 +5,18 @@ import { UserModel } from "../user/user.model";
 import { RoomModel } from "../room/room.model";
 import { BookingModel } from "./booking.model";
 import { TBooking } from "./booking.interface";
+import { initiatePayment } from "../payment/payment.utils";
+import { Types } from "mongoose";
+
+interface TransactionData {
+  bookingId: Types.ObjectId;
+  transactionId: string;
+  totalPrice: number;
+  curtomerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerAddress: string;
+}
 
 const createBookingIntoDB = async (payload: TBooking, userId: string) => {
   const { slots, date, room, user } = payload;
@@ -42,6 +54,8 @@ const createBookingIntoDB = async (payload: TBooking, userId: string) => {
 
   const totalAmount = isRoomExist.pricePerSlot * slots.length;
 
+  const tnxID = `TNXID-${Date.now()}`;
+
   const booking = await BookingModel.create({
     slots,
     date,
@@ -59,7 +73,25 @@ const createBookingIntoDB = async (payload: TBooking, userId: string) => {
     .populate("user")
     .populate("slots");
 
-  return populatedBooking;
+  // console.log(booking._id);
+
+  const paymentData: TransactionData = {
+    bookingId: booking._id,
+    transactionId: tnxID,
+    totalPrice: totalAmount,
+    curtomerName: isUserExist.name,
+    customerEmail: isUserExist.email,
+    customerPhone: isUserExist.phone,
+    customerAddress: isUserExist.address,
+  };
+  const paymentSession = await initiatePayment(paymentData);
+
+  return {
+    populatedBooking,
+    url: paymentSession.payment_url,
+  };
+
+  // return populatedBooking;
 };
 
 const getAllBookingFromDB = async () => {
@@ -68,6 +100,14 @@ const getAllBookingFromDB = async () => {
     .populate("user")
     .populate("slots");
 
+  return result;
+};
+
+const getSingleBookingFromDB = async (id: string) => {
+  const result = await BookingModel.findById(id)
+    .populate("room")
+    .populate("slots")
+    .populate("user");
   return result;
 };
 
@@ -146,4 +186,5 @@ export const BookingService = {
   myBookings,
   updateBookings,
   deleteBookings,
+  getSingleBookingFromDB,
 };

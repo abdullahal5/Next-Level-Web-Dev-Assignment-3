@@ -15,6 +15,7 @@ router.post(
 );
 router.get("/:id", SlotController.getSingleSlot);
 router.get("/", SlotController.getAllSlot);
+router.get("/multiple/:ids", SlotController.getMultipleSlots);
 router.put("/:id", auth(User_Role.admin), SlotController.updateSlot);
 router.delete("/:id", auth(User_Role.admin), SlotController.deleteSlot);
 

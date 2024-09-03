@@ -67,10 +67,22 @@ const deleteSlot = catchAsync(async (req, res) => {
   });
 });
 
+const getMultipleSlots = catchAsync(async (req, res) => {
+  const result = await SlotService.getMultipleSlotsFromDB(req.params.ids);
+
+  SendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Slots Deleted Successfully",
+    data: result,
+  });
+});
+
 export const SlotController = {
   updateSlot,
   createSlot,
   getAllSlot,
   getSingleSlot,
   deleteSlot,
+  getMultipleSlots,
 };
