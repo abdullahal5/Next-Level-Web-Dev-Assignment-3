@@ -5,7 +5,7 @@ import app from "./app";
 async function main() {
   try {
     await mongoose.connect(config.databse_url as string, {
-      dbName: "Assignment-5"
+      dbName: "Assignment-5",
     });
 
     app.listen(config.port, () => {

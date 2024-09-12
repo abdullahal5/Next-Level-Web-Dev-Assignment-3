@@ -83,7 +83,7 @@ const refreshToken = async (refreshToken: string) => {
     role: isUserExist?.role,
     address: isUserExist?.address,
     phone: isUserExist?.phone,
-    _id: isUserExist?._id
+    _id: isUserExist?._id,
   };
 
   const accessToken = createToken(

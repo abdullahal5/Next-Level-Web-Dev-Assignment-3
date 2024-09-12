@@ -9,7 +9,7 @@ const roomSchema = new Schema<TRoom>(
     },
     images: {
       type: [String],
-      required: true
+      required: true,
     },
     roomNo: {
       type: Number,

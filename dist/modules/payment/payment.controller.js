@@ -12,13 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
-const validateRequest = (schema) => {
-    return (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-        yield schema.parseAsync({
-            body: req.body,
-        });
-        return next();
-    }));
+exports.paymentController = void 0;
+const http_status_1 = __importDefault(require("http-status"));
+const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
+const payment_service_1 = require("./payment.service");
+const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
+const confirmationController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { transactionId, payload } = req.query;
+    const result = yield payment_service_1.paymentService.confirmationService(transactionId, payload);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: `${result}`,
+        data: result,
+    });
+}));
+exports.paymentController = {
+    confirmationController,
 };
-exports.default = validateRequest;

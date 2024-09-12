@@ -19,7 +19,7 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield mongoose_1.default.connect(config_1.default.databse_url, {
-                dbName: "Assignment-5"
+                dbName: "Assignment-5",
             });
             app_1.default.listen(config_1.default.port, () => {
                 console.log(`Server is running on ${config_1.default.port}`);

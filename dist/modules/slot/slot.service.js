@@ -18,6 +18,7 @@ const http_status_1 = __importDefault(require("http-status"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const slot_model_1 = require("./slot.model");
 const slot_utils_1 = require("./slot.utils");
+const mongoose_1 = __importDefault(require("mongoose"));
 const createSlotIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { room, date, startTime, endTime } = payload;
     const startMinutes = yield (0, slot_utils_1.getTimeInMinutes)(startTime);
@@ -42,24 +43,26 @@ const createSlotIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function
     return result;
 });
 const getAllSlotFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    let result;
     if (query && Object.keys(query).length > 0) {
-        let result;
         const { date, roomId } = query;
+        const filter = {};
         if (date) {
-            result = yield slot_model_1.SlotModel.find({ date: { $in: date } });
+            filter.date = { $in: date };
         }
         if (roomId) {
-            result = yield slot_model_1.SlotModel.find({ room: { $in: roomId } });
+            filter.room = { $in: roomId };
         }
-        if ((result === null || result === void 0 ? void 0 : result.length) <= 0) {
+        filter.isBooked = false;
+        result = yield slot_model_1.SlotModel.find(filter).populate("room");
+        if (result.length <= 0) {
             throw new AppError_1.default(http_status_1.default.OK, "No Data Found");
         }
-        return result;
     }
     else {
-        const result = yield slot_model_1.SlotModel.find({ isBooked: false }).populate("room");
-        return result;
+        result = yield slot_model_1.SlotModel.find({ isBooked: false }).populate("room");
     }
+    return result;
 });
 const getSingleSlotFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const isRoomExists = yield slot_model_1.SlotModel.findById(id);
@@ -91,10 +94,20 @@ const deleteSlotFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () 
     }
     return deleteSlot;
 });
+const getMultipleSlotsFromDB = (ids) => __awaiter(void 0, void 0, void 0, function* () {
+    const idArray = Array.isArray(ids) ? ids : ids.split(",");
+    const objectIds = idArray.map((id) => new mongoose_1.default.Types.ObjectId(id.trim()));
+    const slots = yield slot_model_1.SlotModel.find({ _id: { $in: objectIds } });
+    if (slots.length === 0) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "No Data Found");
+    }
+    return slots;
+});
 exports.SlotService = {
     updateSlotIntoDB,
     createSlotIntoDB,
     getAllSlotFromDB,
     getSingleSlotFromDB,
     deleteSlotFromDB,
+    getMultipleSlotsFromDB,
 };

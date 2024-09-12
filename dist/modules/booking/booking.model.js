@@ -19,11 +19,8 @@ const bookingSchema = new mongoose_1.Schema({
         required: true,
     },
     date: {
-        type: String,
+        type: [String],
         required: true,
-        set: function (date) {
-            return new Date(date).toISOString().substring(0, 10);
-        },
     },
     totalAmount: {
         type: Number,

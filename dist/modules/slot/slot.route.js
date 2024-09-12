@@ -14,6 +14,7 @@ const router = express_1.default.Router();
 router.post("/", (0, auth_1.default)(interface_1.User_Role.admin), (0, validateRequest_1.default)(slot_validation_1.SlotValidation.createSlotValidation), slot_controller_1.SlotController.createSlot);
 router.get("/:id", slot_controller_1.SlotController.getSingleSlot);
 router.get("/", slot_controller_1.SlotController.getAllSlot);
+router.get("/multiple/:ids", slot_controller_1.SlotController.getMultipleSlots);
 router.put("/:id", (0, auth_1.default)(interface_1.User_Role.admin), slot_controller_1.SlotController.updateSlot);
 router.delete("/:id", (0, auth_1.default)(interface_1.User_Role.admin), slot_controller_1.SlotController.deleteSlot);
 exports.SlotRoutes = router;

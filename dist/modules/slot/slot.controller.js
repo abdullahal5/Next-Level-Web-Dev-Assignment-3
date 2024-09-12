@@ -28,7 +28,6 @@ const createSlot = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     });
 }));
 const getAllSlot = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log(req.query)
     let result;
     if (req.query) {
         result = yield slot_service_1.SlotService.getAllSlotFromDB(req.query);
@@ -73,10 +72,20 @@ const deleteSlot = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
         data: result,
     });
 }));
+const getMultipleSlots = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield slot_service_1.SlotService.getMultipleSlotsFromDB(req.params.ids);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Slots Deleted Successfully",
+        data: result,
+    });
+}));
 exports.SlotController = {
     updateSlot,
     createSlot,
     getAllSlot,
     getSingleSlot,
     deleteSlot,
+    getMultipleSlots,
 };

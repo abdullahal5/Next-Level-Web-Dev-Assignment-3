@@ -17,4 +17,5 @@ export default {
   BASE_URL: process.env.BASE_URL,
   PAYMENT_URL: process.env.PAYMENT_URL,
   Client_URL: process.env.clientURI,
+  VERIFY_URL: process.env.VERIFY_URL,
 };

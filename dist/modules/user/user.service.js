@@ -69,7 +69,7 @@ const refreshToken = (refreshToken) => __awaiter(void 0, void 0, void 0, functio
         role: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.role,
         address: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.address,
         phone: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.phone,
-        _id: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist._id
+        _id: isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist._id,
     };
     const accessToken = (0, user_utility_1.createToken)(jwtPayload, config_1.default.Access_Token, config_1.default.Jwt_access_expires_in);
     return {

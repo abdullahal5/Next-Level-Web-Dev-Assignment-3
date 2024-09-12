@@ -6,16 +6,16 @@ import { RoomModel } from "../room/room.model";
 import { BookingModel } from "./booking.model";
 import { TBooking } from "./booking.interface";
 import { initiatePayment } from "../payment/payment.utils";
-import { Types } from "mongoose";
 
 interface TransactionData {
-  bookingId: Types.ObjectId;
   transactionId: string;
   totalPrice: number;
   curtomerName: string;
   customerEmail: string;
   customerPhone: string;
   customerAddress: string;
+  payload: TBooking;
+  userId: string;
 }
 
 const createBookingIntoDB = async (payload: TBooking, userId: string) => {
@@ -56,42 +56,22 @@ const createBookingIntoDB = async (payload: TBooking, userId: string) => {
 
   const tnxID = `TNXID-${Date.now()}`;
 
-  const booking = await BookingModel.create({
-    slots,
-    date,
-    room,
-    user,
-    totalAmount,
-  });
-
-  for (const slot of booking.slots) {
-    await SlotModel.findByIdAndUpdate(slot, { isBooked: true }, { new: true });
-  }
-
-  const populatedBooking = await BookingModel.findById(booking._id)
-    .populate("room")
-    .populate("user")
-    .populate("slots");
-
-  // console.log(booking._id);
-
   const paymentData: TransactionData = {
-    bookingId: booking._id,
+    // bookingId: booking._id,
     transactionId: tnxID,
     totalPrice: totalAmount,
     curtomerName: isUserExist.name,
     customerEmail: isUserExist.email,
     customerPhone: isUserExist.phone,
     customerAddress: isUserExist.address,
+    payload: payload,
+    userId: userId,
   };
   const paymentSession = await initiatePayment(paymentData);
 
   return {
-    populatedBooking,
     url: paymentSession.payment_url,
   };
-
-  // return populatedBooking;
 };
 
 const getAllBookingFromDB = async () => {

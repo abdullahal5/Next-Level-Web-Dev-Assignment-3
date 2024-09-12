@@ -1,15 +1,16 @@
 import axios from "axios";
 import config from "../../config";
-import { Types } from "mongoose";
+import { TBooking } from "../booking/booking.interface";
 
 interface TransactionData {
-  bookingId: Types.ObjectId;
   transactionId: string;
   totalPrice: number;
   curtomerName: string;
   customerEmail: string;
   customerPhone: string;
   customerAddress: string;
+  payload: TBooking;
+  userId: string;
 }
 
 export const initiatePayment = async (payload: TransactionData) => {
@@ -17,9 +18,9 @@ export const initiatePayment = async (payload: TransactionData) => {
     store_id: config.Store_id,
     signature_key: config.SIGNETURE_KEY,
     tran_id: payload.transactionId,
-    success_url: `http://localhost:5000/api/v1/payment/confirmation?transactionId=${payload.transactionId}&status=success&bookingId=${payload.bookingId.toString()}`,
-    fail_url: "http://www.merchantdomain.com/faile dpage.html",
-    cancel_url: "http://www.merchantdomain.com/can cellpage.html",
+    success_url: `http://localhost:5000/api/v1/payment/confirmation?transactionId=${payload.transactionId}&status=success&payload=${encodeURIComponent(JSON.stringify(payload))}&userId=${payload.userId}`,
+    fail_url: `http://localhost:5000/api/v1/payment/confirmation?transactionId=${payload.transactionId}&status=failed`,
+    cancel_url: "http://localhost:5173",
     amount: payload.totalPrice,
     currency: "BDT",
     desc: "Merchant Registration Payment",
@@ -36,4 +37,21 @@ export const initiatePayment = async (payload: TransactionData) => {
   });
 
   return response.data;
+};
+
+export const verifyPayment = async (tnxId: string | undefined) => {
+  try {
+    const response = await axios.get(config.VERIFY_URL!, {
+      params: {
+        store_id: config.Store_id,
+        signature_key: config.SIGNETURE_KEY,
+        type: "json",
+        request_id: tnxId,
+      },
+    });
+
+    return response.data;
+  } catch (err) {
+    throw new Error("Payment validation failed!");
+  }
 };

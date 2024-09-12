@@ -19,6 +19,7 @@ const slot_model_1 = require("../slot/slot.model");
 const user_model_1 = require("../user/user.model");
 const room_model_1 = require("../room/room.model");
 const booking_model_1 = require("./booking.model");
+const payment_utils_1 = require("../payment/payment.utils");
 const createBookingIntoDB = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const { slots, date, room, user } = payload;
     const isDateExist = yield slot_model_1.SlotModel.find({ date: { $in: date } });
@@ -41,27 +42,35 @@ const createBookingIntoDB = (payload, userId) => __awaiter(void 0, void 0, void 
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, "Please Provide your own user id");
     }
     const totalAmount = isRoomExist.pricePerSlot * slots.length;
-    const booking = yield booking_model_1.BookingModel.create({
-        slots,
-        date,
-        room,
-        user,
-        totalAmount,
-    });
-    for (const slot of booking.slots) {
-        yield slot_model_1.SlotModel.findByIdAndUpdate(slot, { isBooked: true }, { new: true });
-    }
-    const populatedBooking = yield booking_model_1.BookingModel.findById(booking._id)
-        .populate("room")
-        .populate("user")
-        .populate("slots");
-    return populatedBooking;
+    const tnxID = `TNXID-${Date.now()}`;
+    const paymentData = {
+        // bookingId: booking._id,
+        transactionId: tnxID,
+        totalPrice: totalAmount,
+        curtomerName: isUserExist.name,
+        customerEmail: isUserExist.email,
+        customerPhone: isUserExist.phone,
+        customerAddress: isUserExist.address,
+        payload: payload,
+        userId: userId,
+    };
+    const paymentSession = yield (0, payment_utils_1.initiatePayment)(paymentData);
+    return {
+        url: paymentSession.payment_url,
+    };
 });
 const getAllBookingFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield booking_model_1.BookingModel.find({ isDeleted: false })
         .populate("room")
         .populate("user")
         .populate("slots");
+    return result;
+});
+const getSingleBookingFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield booking_model_1.BookingModel.findById(id)
+        .populate("room")
+        .populate("slots")
+        .populate("user");
     return result;
 });
 const myBookings = (user) => __awaiter(void 0, void 0, void 0, function* () {
@@ -116,4 +125,5 @@ exports.BookingService = {
     myBookings,
     updateBookings,
     deleteBookings,
+    getSingleBookingFromDB,
 };
