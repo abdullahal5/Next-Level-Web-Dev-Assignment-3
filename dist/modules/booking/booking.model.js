@@ -25,6 +25,9 @@ const bookingSchema = new mongoose_1.Schema({
     totalAmount: {
         type: Number,
     },
+    paymentStatus: {
+        type: String
+    },
     isConfirmed: {
         type: String,
         default: "unconfirmed",

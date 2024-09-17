@@ -1,15 +1,21 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import httpStatus from "http-status";
 import { BookingModel } from "../booking/booking.model";
 import { verifyPayment } from "./payment.utils";
 import AppError from "../../errors/AppError";
 import { RoomModel } from "../room/room.model";
 import { SlotModel } from "../slot/slot.model";
+import { join } from "path";
+import { readFileSync } from "fs";
 
 const confirmationService = async (
   transactionId?: string | undefined,
   payload?: string | undefined,
 ) => {
   const res = await verifyPayment(transactionId);
+
+  let result;
+  let message = "";
 
   if (res && res.pay_status === "Successful") {
     if (!payload) {
@@ -22,7 +28,7 @@ const confirmationService = async (
     const isRoomExist = await RoomModel.findOne({ _id: room });
 
     if (!isRoomExist) {
-      throw new AppError(httpStatus.NOT_FOUND, "Room does not exists");
+      throw new AppError(httpStatus.NOT_FOUND, "Room does not exist");
     }
 
     const totalAmount = isRoomExist.pricePerSlot * slots.length;
@@ -43,16 +49,29 @@ const confirmationService = async (
       );
     }
 
-    const populatedBooking = await BookingModel.findById(booking._id)
+    await BookingModel.findByIdAndUpdate(booking._id, {
+      paymentStatus: "paid",
+    });
+
+    result = await BookingModel.findById(booking._id)
       .populate("room")
       .populate("user")
       .populate("slots");
 
-    return populatedBooking;
+    message = "Payment and booking successful";
+
+    const filePath = join(__dirname, "../../../views/confirmation.html");
+    let template = readFileSync(filePath, "utf-8");
+
+    template = template.replace("{{message}}", message);
+
+    return template;
   } else {
-    return "failed";
+    message = "Payment failed";
+    return { message };
   }
 };
+
 export const paymentService = {
   confirmationService,
 };

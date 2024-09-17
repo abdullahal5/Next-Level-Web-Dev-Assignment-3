@@ -19,8 +19,12 @@ const payment_utils_1 = require("./payment.utils");
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const room_model_1 = require("../room/room.model");
 const slot_model_1 = require("../slot/slot.model");
+const path_1 = require("path");
+const fs_1 = require("fs");
 const confirmationService = (transactionId, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const res = yield (0, payment_utils_1.verifyPayment)(transactionId);
+    let result;
+    let message = "";
     if (res && res.pay_status === "Successful") {
         if (!payload) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Payload is missing");
@@ -29,7 +33,7 @@ const confirmationService = (transactionId, payload) => __awaiter(void 0, void 0
         const { slots, date, room, user } = parsedPayload.payload;
         const isRoomExist = yield room_model_1.RoomModel.findOne({ _id: room });
         if (!isRoomExist) {
-            throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Room does not exists");
+            throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Room does not exist");
         }
         const totalAmount = isRoomExist.pricePerSlot * slots.length;
         const booking = yield booking_model_1.BookingModel.create({
@@ -42,14 +46,22 @@ const confirmationService = (transactionId, payload) => __awaiter(void 0, void 0
         for (const slot of booking.slots) {
             yield slot_model_1.SlotModel.findByIdAndUpdate(slot, { isBooked: true }, { new: true });
         }
-        const populatedBooking = yield booking_model_1.BookingModel.findById(booking._id)
+        yield booking_model_1.BookingModel.findByIdAndUpdate(booking._id, {
+            paymentStatus: "paid",
+        });
+        result = yield booking_model_1.BookingModel.findById(booking._id)
             .populate("room")
             .populate("user")
             .populate("slots");
-        return populatedBooking;
+        message = "Payment and booking successful";
+        const filePath = (0, path_1.join)(__dirname, "../../../views/confirmation.html");
+        let template = (0, fs_1.readFileSync)(filePath, "utf-8");
+        template = template.replace("{{message}}", message);
+        return template;
     }
     else {
-        return "failed";
+        message = "Payment failed";
+        return { message };
     }
 });
 exports.paymentService = {

@@ -25,6 +25,9 @@ const bookingSchema = new Schema<TBooking>(
     totalAmount: {
       type: Number,
     },
+    paymentStatus: {
+      type: String
+    },
     isConfirmed: {
       type: String,
       default: "unconfirmed",

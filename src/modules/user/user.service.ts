@@ -97,8 +97,21 @@ const refreshToken = async (refreshToken: string) => {
   };
 };
 
+const getAllUser = async (user: { role: string }) => {
+  const checkAdmin = user.role === "admin";
+
+  if (!checkAdmin) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not authorized!!!");
+  }
+
+  const result = await UserModel.find();
+
+  return result;
+};
+
 export const UserService = {
   createUserIntoDB,
   loginUser,
   refreshToken,
+  getAllUser,
 };

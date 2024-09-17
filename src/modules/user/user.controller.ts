@@ -3,6 +3,8 @@ import catchAsync from "../../utils/catchAsync";
 import SendResponse from "../../utils/sendResponse";
 import { UserService } from "./user.service";
 import config from "../../config";
+import AppError from "../../errors/AppError";
+import { TUser } from "./user.interface";
 
 const registerUser = catchAsync(async (req, res) => {
   const body = req.body;
@@ -48,8 +50,29 @@ const refreshToken = catchAsync(async (req, res) => {
   });
 });
 
+const getAllUser = catchAsync(async (req, res) => {
+  const user: TUser | undefined = req.user as TUser;
+
+  if (!user || !user.role) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "User not authorized or missing role.",
+    );
+  }
+
+  const result = await UserService.getAllUser(user);
+
+  SendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "All user retrieved succesfully!",
+    data: result,
+  });
+});
+
 export const UserController = {
   registerUser,
   loginUser,
   refreshToken,
+  getAllUser,
 };

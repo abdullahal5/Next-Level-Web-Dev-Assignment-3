@@ -18,4 +18,6 @@ export default {
   PAYMENT_URL: process.env.PAYMENT_URL,
   Client_URL: process.env.clientURI,
   VERIFY_URL: process.env.VERIFY_URL,
+  FrontEnd_URL: process.env.FrontEnd_URL,
+  Backend_URL: process.env.Backend_URL
 };

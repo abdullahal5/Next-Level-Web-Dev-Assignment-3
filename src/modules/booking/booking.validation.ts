@@ -21,6 +21,7 @@ const createBookingValidationSchema = z.object({
     totalAmount: z.number().optional(),
     isConfirmed: z.enum(["unconfirmed", "confirmed", "cancelled"]).optional(),
     isDeleted: z.boolean().optional(),
+    paymentStatus: z.string().optional(),
   }),
 });
 
@@ -54,6 +55,7 @@ const updateBookingValidationSchema = z.object({
     totalAmount: z.number().optional(),
     isConfirmed: z.enum(["unconfirmed", "confirmed", "cancelled"]).optional(),
     isDeleted: z.boolean().optional(),
+    paymentStatus: z.string().optional(),
   }),
 });
 
