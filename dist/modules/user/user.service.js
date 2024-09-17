@@ -76,8 +76,17 @@ const refreshToken = (refreshToken) => __awaiter(void 0, void 0, void 0, functio
         accessToken,
     };
 });
+const getAllUser = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    const checkAdmin = user.role === "admin";
+    if (!checkAdmin) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "User not authorized!!!");
+    }
+    const result = yield user_model_1.UserModel.find();
+    return result;
+});
 exports.UserService = {
     createUserIntoDB,
     loginUser,
     refreshToken,
+    getAllUser,
 };

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.paymentService = void 0;
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const http_status_1 = __importDefault(require("http-status"));
 const booking_model_1 = require("../booking/booking.model");
 const payment_utils_1 = require("./payment.utils");

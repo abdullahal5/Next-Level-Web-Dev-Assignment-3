@@ -18,6 +18,7 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const user_service_1 = require("./user.service");
 const config_1 = __importDefault(require("../../config"));
+const AppError_1 = __importDefault(require("../../errors/AppError"));
 const registerUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const body = req.body;
     const result = yield user_service_1.UserService.createUserIntoDB(body);
@@ -55,8 +56,22 @@ const refreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         data: result,
     });
 }));
+const getAllUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    if (!user || !user.role) {
+        throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "User not authorized or missing role.");
+    }
+    const result = yield user_service_1.UserService.getAllUser(user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "All user retrieved succesfully!",
+        data: result,
+    });
+}));
 exports.UserController = {
     registerUser,
     loginUser,
     refreshToken,
+    getAllUser,
 };
