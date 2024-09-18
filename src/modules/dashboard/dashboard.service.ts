@@ -20,6 +20,9 @@ const GetDashboardData = async () => {
 
   const pipeline: PipelineStage[] = [
     {
+      $match: { paymentStatus: "paid" },
+    },
+    {
       $lookup: {
         from: "rooms",
         localField: "room",
@@ -31,41 +34,16 @@ const GetDashboardData = async () => {
       $unwind: "$roomDetails",
     },
     {
-      $lookup: {
-        from: "slots",
-        localField: "room",
-        foreignField: "room",
-        as: "slotDetails",
-      },
-    },
-    {
-      $unwind: {
-        path: "$slotDetails",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
       $group: {
         _id: "$roomDetails._id",
         roomName: { $first: "$roomDetails.name" },
+        totalRevenue: { $sum: "$totalAmount" },
         totalBookings: { $sum: 1 },
-        totalAmount: { $sum: "$totalAmount" },
-        totalSlots: {
-          $sum: { $cond: [{ $ifNull: ["$slotDetails._id", false] }, 1, 0] },
-        },
-        bookings: {
-          $push: {
-            bookingId: "$_id",
-            user: "$user",
-            date: "$date",
-            amount: "$totalAmount",
-            status: "$paymentStatus",
-          },
-        },
+        totalSlots: { $sum: { $size: "$slots" } },
       },
     },
     {
-      $sort: { totalBookings: -1 },
+      $sort: { totalRevenue: -1 },
     },
   ];
 
