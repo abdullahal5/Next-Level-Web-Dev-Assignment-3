@@ -61,8 +61,17 @@ const confirmationService = (transactionId, payload) => __awaiter(void 0, void 0
         return template;
     }
     else {
-        message = "Payment failed";
-        return { message };
+        const message = "Payment failed";
+        const filePath = (0, path_1.join)(__dirname, "../../../views/failConfirmation.html");
+        let template;
+        try {
+            template = (0, fs_1.readFileSync)(filePath, "utf-8");
+        }
+        catch (error) {
+            throw new AppError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, "Failed to load failConfirmation template");
+        }
+        template = template.replace("{{message}}", message);
+        return template;
     }
 });
 exports.paymentService = {

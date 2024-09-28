@@ -67,8 +67,21 @@ const confirmationService = async (
 
     return template;
   } else {
-    message = "Payment failed";
-    return { message };
+    const message = "Payment failed";
+    const filePath = join(__dirname, "../../../views/failConfirmation.html");
+
+    let template;
+    try {
+      template = readFileSync(filePath, "utf-8");
+    } catch (error) {
+      throw new AppError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        "Failed to load failConfirmation template",
+      );
+    }
+
+    template = template.replace("{{message}}", message);
+    return template;
   }
 };
 
