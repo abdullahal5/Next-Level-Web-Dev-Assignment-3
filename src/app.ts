@@ -10,7 +10,7 @@ const app: Application = express();
 app.use(
   cors({
     origin: [
-      "https://next-level-web-dev-assignment-5-main-4afc1vpte.vercel.app",
+      "https://next-level-web-dev-assignment-5-main.vercel.app",
       "http://localhost:5173",
     ],
     credentials: true,

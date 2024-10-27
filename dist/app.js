@@ -12,7 +12,7 @@ const routes_1 = __importDefault(require("./routes"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: [
-        "https://next-level-web-dev-assignment-5-main-4afc1vpte.vercel.app",
+        "https://next-level-web-dev-assignment-5-main.vercel.app",
         "http://localhost:5173",
     ],
     credentials: true,
