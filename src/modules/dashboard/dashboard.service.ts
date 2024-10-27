@@ -5,7 +5,7 @@ import { SlotModel } from "../slot/slot.model";
 import { UserModel } from "../user/user.model";
 
 const GetDashboardData = async () => {
-  const totalRoom = await RoomModel.countDocuments();
+  const totalRoom = await RoomModel.countDocuments({ isDeleted: false });
   const totalSlots = await SlotModel.countDocuments();
   const totalBook = await BookingModel.countDocuments();
   const totalUser = await UserModel.countDocuments();

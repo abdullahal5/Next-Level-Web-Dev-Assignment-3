@@ -15,7 +15,7 @@ const room_model_1 = require("../room/room.model");
 const slot_model_1 = require("../slot/slot.model");
 const user_model_1 = require("../user/user.model");
 const GetDashboardData = () => __awaiter(void 0, void 0, void 0, function* () {
-    const totalRoom = yield room_model_1.RoomModel.countDocuments();
+    const totalRoom = yield room_model_1.RoomModel.countDocuments({ isDeleted: false });
     const totalSlots = yield slot_model_1.SlotModel.countDocuments();
     const totalBook = yield booking_model_1.BookingModel.countDocuments();
     const totalUser = yield user_model_1.UserModel.countDocuments();
